@@ -92,6 +92,18 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - node_monitoring
+
+  victoria:
+    image: victoriametrics/victoria-metrics:latest
+    ports: 
+      - "8428:8428"  # Для использования vmui
+    volumes:
+      - ./victoria_data:/victoria-metrics-data
+    command:
+      - '-retentionPeriod=2w'
+    networks:
+      - node_monitoring
+
         
 networks:
   cms_network:
