@@ -1,0 +1,58 @@
+groups:
+- name: alert_rules
+  rules:
+  - alert: node_down
+    expr: up == 0
+    for: 30s
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Нода {{ $labels.instance }} завершила работу"
+  
+  # Оперативная память  
+  - alert: node_memory
+    expr: 100 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 > 70
+    for: 30s
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "Оперативная память >70% ({{ $labels.instance }})"
+      description: "Последнее значение = {{ $value }}"
+
+  - alert: node_memory
+    expr: 100 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 > 70
+    for: 10s
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Оперативная память >90% ({{ $labels.instance }})"
+      description: "Последнее значение = {{ $value }}"
+
+  # Диск
+  - alert: node_space
+    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} < 70
+    for: 5m
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "Место на диске >70% ({{ $labels.instance }})"
+      description: "Последнее значение = {{ $value }}"
+
+  - alert: node_space
+    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} < 90
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Место на диске >90% ({{ $labels.instance }})"
+      description: "Последнее значение = {{ $value }}"
+
+  # Веб-приложение
+  - alert: cms_availability
+    expr: round(delta(wordpress_comment_count[2h])) < 1
+    for: 10m
+    labels:
+      severity: "notice"
+    annotations:
+      summary: "Отсутствие активности на веб-приложении"
+      description: "За последние два часа не было ни одного комментария"

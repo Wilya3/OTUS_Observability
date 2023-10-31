@@ -1,0 +1,64 @@
+route:  # дефолтный путь, который будет использоваться, если алерт не подошел ни под один другой путь
+  receiver: 'telegram_flood'  
+
+  group_by: ['alertname', 'cluster', 'site']  # мы добавляли дополнительную метку site во второй домашке. Представим, что помимо прометеуса из домашек с меткой "site: prod" где-то еще запущен прометеус с меткой "site: test"
+  group_wait: 15s  # ожидание перед отправкой первого сообщения
+  group_interval: 5m
+  repeat_interval: 3h  # если алерт не починился, то повторить уведомление через три часа
+
+  routes:  # родительский путь, который отправляет алерты о железе с уровнем warning
+  - matchers:
+    - alertname=~"node_.+"
+    - site=prod
+    - severity=~"warning|critical" # Почему в проверке написано warning|critical, но отправляет только warning? Потому что дальше есть дочка, которая перехватывает critical алерты и отправляет их в отдельный чат
+    receiver: telegram_nodes_warning
+
+    routes:  # дочка, которая переписывает текущий маршрут: если уровень critical (а всё остальное так же), НЕ отправляет в telegram_nodes_warning, но отправляет в telegram_nodes_critical
+    - matchers:
+      - severity=critical
+      receiver: telegram_nodes_critical
+
+        # По тому же принципу отправляем ошибки CMS в отдельные каналы. Но так как нужно проверить дефолтный путь, комментирую и отправляю ошибки CMS по дефолтному пути
+        #  routes:  
+        #  - matchers:
+        #    - alertname=~"cms_.+"  
+        #    - site=prod
+        #    - severity=~"warning|critical" 
+        #    receiver: telegram_cms_warning
+        #
+        #    routes:  
+        #    - matchers:
+        #      - severity=critical
+        #      receiver: telegram_cms_critical
+
+# Если резко подскочила какая-то метрика и вызвала одновременно warning и critical алерт, то отправится только critical алерт.
+# (зачем получать сообщение о том, что на сервере забито больше 70% места, если уже прилетел алерт о том, что забито больше 90%)
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname', 'site']
+
+
+receivers:
+- name: 'telegram_flood'
+  telegram_configs:
+  - bot_token: '5922287919:AAFld8GGJV6yXlU7lbTSvs8v-vrOxE4pGh0' # проверял, работает
+    chat_id: -4063618822
+    message: "{{ .CommonAnnotations.summary }}\n\n{{ .CommonAnnotations.description }}"
+
+- name: 'telegram_nodes_warning'
+  telegram_configs:
+  - bot_token: '5922287919:AAFld8GGJV6yXlU7lbTSvs8v-vrOxE4pGh0'  
+    chat_id: -4008795794
+    message: "{{ .CommonAnnotations.summary }}\n\n{{ .CommonAnnotations.description }}"
+
+- name: 'telegram_nodes_critical'
+  telegram_configs:
+  - bot_token: '5922287919:AAFld8GGJV6yXlU7lbTSvs8v-vrOxE4pGh0'  
+    chat_id: -4067171026
+    message: "{{ .CommonAnnotations.summary }}\n\n{{ .CommonAnnotations.description }}"
+
+# -name: 'telegram_cms_warning'...
+
