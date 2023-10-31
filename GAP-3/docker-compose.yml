@@ -78,7 +78,7 @@ services:
       - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
     networks:
       - cms_network
-      - node_monitoring
+      - monitoring
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -92,7 +92,7 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - node_monitoring
+      - monitoring
 
   victoria:
     image: victoriametrics/victoria-metrics:latest
@@ -103,7 +103,7 @@ services:
     command:
       - '-retentionPeriod=2w'
     networks:
-      - node_monitoring
+      - monitoring
 
   alertmanager:
     image: prom/alertmanager:latest    
@@ -112,8 +112,8 @@ services:
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
     networks:
-      - node_monitoring
+      - monitoring
 
 networks:
   cms_network:
-  node_monitoring:
+  monitoring:
