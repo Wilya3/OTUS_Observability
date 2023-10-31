@@ -30,7 +30,7 @@ groups:
 
   # Диск
   - alert: node_space
-    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} < 70
+    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} > 70
     for: 5m
     labels:
       severity: "warning"
@@ -39,7 +39,7 @@ groups:
       description: "Последнее значение = {{ $value }}"
 
   - alert: node_space
-    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} < 90
+    expr: 100 - (node_filesystem_avail{mountpoint="/"}  * 100) / node_filesystem_size{mountpoint="/"} > 90
     for: 1m
     labels:
       severity: "critical"
