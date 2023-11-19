@@ -23,19 +23,27 @@ scrape_configs:
 
   - job_name: 'node'
     static_configs:
-      - targets: ['node-exporter:9100']  
+      - targets: ['node-exporter:9100']
+        labels:
+          type: 'node' 
 
   - job_name: 'mysql'
     static_configs:
       - targets: ['mysql-exporter:9104']
+        labels: 
+          type: 'db'
 
   - job_name: 'wordpress'
     static_configs:
-      - targets: ['wordpress-exporter:11011']  
+      - targets: ['wordpress-exporter:11011'] 
+        labels:
+          type: 'web'
 
   - job_name: 'nginx'
     static_configs:
       - targets: ['nginx-exporter:9113']
+        labels:
+          type: 'web'
 
 
 

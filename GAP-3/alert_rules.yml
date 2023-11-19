@@ -20,7 +20,7 @@ groups:
       description: "Последнее значение = {{ $value }}"
 
   - alert: node_memory
-    expr: 100 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 > 70
+    expr: 100 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 > 90
     for: 10s
     labels:
       severity: "critical"

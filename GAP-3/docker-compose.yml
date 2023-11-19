@@ -76,6 +76,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
     networks:
       - cms_network
       - monitoring
@@ -113,6 +114,9 @@ services:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
     networks:
       - monitoring
+
+volumes:
+  prometheus_data:
 
 networks:
   cms_network:
